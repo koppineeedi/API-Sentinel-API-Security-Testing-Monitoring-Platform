@@ -1,9 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { User, LogOut, ShieldCheck, Bell } from 'lucide-react';
+import { User, LogOut, ShieldCheck, Bell, Clock } from 'lucide-react';
+import { formatIST } from '../../utils/dateFormatter';
 
 export const TopNav = () => {
   const { user, logout } = useAuth();
+  const [istTime, setIstTime] = useState('');
+
+  useEffect(() => {
+    const updateClock = () => {
+      setIstTime(formatIST(new Date()));
+    };
+    updateClock();
+    const timer = setInterval(updateClock, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const getRoleBadgeColor = (role) => {
     switch (role) {
@@ -22,6 +33,10 @@ export const TopNav = () => {
         <div className="flex items-center gap-2 text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
           <span>SYSTEM ACTIVE</span>
+        </div>
+        <div className="hidden md:flex items-center gap-2 text-xs font-mono text-cyan-300 bg-cyan-950/40 border border-cyan-800/40 px-3 py-1 rounded-md">
+          <Clock className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+          <span>{istTime || 'Loading IST...'}</span>
         </div>
       </div>
 

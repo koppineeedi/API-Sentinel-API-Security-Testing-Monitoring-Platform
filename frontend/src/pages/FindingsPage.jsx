@@ -7,6 +7,8 @@ import {
   Search, ArrowUpDown, ChevronLeft, ChevronRight, ShieldAlert, FileText, RefreshCw, AlertOctagon, CornerUpLeft
 } from 'lucide-react';
 
+import { formatIST } from '../utils/dateFormatter';
+
 export const FindingsPage = () => {
   const [findings, setFindings] = useState([]);
   const [severityFilter, setSeverityFilter] = useState('');
@@ -203,7 +205,7 @@ export const FindingsPage = () => {
                 </td>
                 <td className="py-3.5 px-4 font-mono text-slate-400 text-[11px]">{f.confidence}</td>
                 <td className="py-3.5 px-4 font-mono text-slate-500 text-[11px]">
-                  {new Date(f.discovered_at).toLocaleDateString()}
+                  {formatIST(f.discovered_at)}
                 </td>
                 <td className="py-3.5 px-4 text-right">
                   <button
@@ -303,11 +305,11 @@ export const FindingsPage = () => {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-[11px] font-mono">
               <div>
                 <span className="text-slate-500 block">First Seen</span>
-                <span className="text-slate-200">{new Date(selectedFinding.discovered_at).toLocaleString()}</span>
+                <span className="text-slate-200">{formatIST(selectedFinding.discovered_at)}</span>
               </div>
               <div>
                 <span className="text-slate-500 block">Last Update</span>
-                <span className="text-slate-200">{selectedFinding.resolved_at ? new Date(selectedFinding.resolved_at).toLocaleString() : 'Active'}</span>
+                <span className="text-slate-200">{selectedFinding.resolved_at ? formatIST(selectedFinding.resolved_at) : 'Active'}</span>
               </div>
               <div>
                 <span className="text-slate-500 block">Confidence</span>

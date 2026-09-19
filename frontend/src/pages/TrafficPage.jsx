@@ -3,6 +3,8 @@ import api from '../services/api';
 import { Activity, ShieldAlert, Code, Search } from 'lucide-react';
 import { Modal } from '../components/common/Modal';
 
+import { formatISTTime } from '../utils/dateFormatter';
+
 export const TrafficPage = () => {
   const [traffic, setTraffic] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -93,8 +95,8 @@ export const TrafficPage = () => {
                     <span className="text-slate-600 text-[10px]">Normal</span>
                   )}
                 </td>
-                <td className="py-3 px-4 text-slate-500 text-[11px]">
-                  {new Date(t.timestamp).toLocaleTimeString()}
+                <td className="py-3 px-4 text-slate-500 text-[11px] font-mono">
+                  {formatISTTime(t.timestamp)}
                 </td>
               </tr>
             ))}

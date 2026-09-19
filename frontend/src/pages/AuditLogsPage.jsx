@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { Shield, Search, Filter, RefreshCw, Clock, UserCheck } from 'lucide-react';
 
+import { formatIST } from '../utils/dateFormatter';
+
 export const AuditLogsPage = () => {
   const [logs, setLogs] = useState([]);
   const [actionFilter, setActionFilter] = useState('');
@@ -97,7 +99,7 @@ export const AuditLogsPage = () => {
             {logs.map((log) => (
               <tr key={log.id} className="hover:bg-slate-800/40">
                 <td className="py-3.5 px-4 text-slate-500 text-[11px]">
-                  {new Date(log.timestamp).toLocaleString()}
+                  {formatIST(log.timestamp)}
                 </td>
                 <td className="py-3.5 px-4 font-bold text-slate-300">User #{log.user_id}</td>
                 <td className="py-3.5 px-4">
