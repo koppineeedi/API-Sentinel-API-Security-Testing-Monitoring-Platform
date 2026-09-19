@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.finding import Finding
 from app.models.project import APIProject
+from app.models.user import User
 from app.models.enums import UserRole, FindingSeverity, FindingStatus, FindingConfidence
 from app.schemas.finding import FindingCreate, FindingResponse, FindingUpdate
 from app.security.rbac import require_minimum_role
