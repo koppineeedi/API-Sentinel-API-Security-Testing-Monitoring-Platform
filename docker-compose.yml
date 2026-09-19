@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: sentinel_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: sentinel
+      POSTGRES_PASSWORD: sentinel_secure_pass
+      POSTGRES_DB: apisentinel
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sentinel -d apisentinel"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    container_name: sentinel_backend
+    restart: always
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql://sentinel:sentinel_secure_pass@postgres:5432/apisentinel
+      - SECRET_KEY=sentinel_prod_super_secret_jwt_key_32bytes
+      - BACKEND_CORS_ORIGINS=["http://localhost:5173","http://localhost:3000"]
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    container_name: sentinel_frontend
+    restart: always
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+  scanner:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.scanner
+    container_name: sentinel_scanner
+    restart: always
+    environment:
+      - BACKEND_URL=http://backend:8000
+      - DATABASE_URL=postgresql://sentinel:sentinel_secure_pass@postgres:5432/apisentinel
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

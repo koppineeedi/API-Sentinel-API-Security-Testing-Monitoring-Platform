@@ -1,0 +1,48 @@
+import sys
+import os
+import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+# Add backend directory to sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../backend')))
+
+# Use isolated test database
+SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///./test_sentinel.db"
+test_engine = create_engine(
+    SQLALCHEMY_TEST_DATABASE_URL, connect_args={"check_same_thread": False}
+)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+
+# Patch database module before app import
+import app.database
+app.database.engine = test_engine
+app.database.SessionLocal = TestingSessionLocal
+
+from app.main import app
+from app.database import Base, get_db
+from fastapi.testclient import TestClient
+
+@pytest.fixture(scope="function")
+def db_session():
+    Base.metadata.drop_all(bind=test_engine)
+    Base.metadata.create_all(bind=test_engine)
+    session = TestingSessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()
+        Base.metadata.drop_all(bind=test_engine)
+
+@pytest.fixture(scope="function")
+def client(db_session):
+    def _override_get_db():
+        try:
+            yield db_session
+        finally:
+            pass
+
+    app.dependency_overrides[get_db] = _override_get_db
+    with TestClient(app) as c:
+        yield c
+    app.dependency_overrides.clear()
